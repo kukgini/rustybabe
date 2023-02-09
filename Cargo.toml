@@ -3,6 +3,7 @@ members = [
     "rustyaskar",
     "rustywest",
     "rustyoidc",
+    "rustyserde",
 ]
 
 [workspace.package]
