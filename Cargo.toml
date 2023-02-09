@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "rustyaskar",
+    "rustywest",
+    "rustyoidc",
+]
+
+[workspace.package]
+version = "0.0.1"
+authors = ["kukgini@gmail.com"]
+description = "kukgini's rust excercises"
+license = "Apache-2.0"
