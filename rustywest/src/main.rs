@@ -5,6 +5,8 @@ use std::process;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>>{
+    let api_key = "api-key";
+    let api_token = "api-token";
     let client = reqwest::Client::new();
     let mut rdr = csv::Reader::from_reader(io::stdin());
     for result in rdr.records() {
@@ -12,8 +14,8 @@ async fn main() -> Result<(), Box<dyn Error>>{
         let id = record.get(0).unwrap();
         let url = format!("https://some.url/{}",id);
         let result = client.delete(&url)
-            .header("X-API-KEY", "...")
-            .header("Authorization", "Bearer ...")
+            .header("X-API-KEY", api_key)
+            .header("Authorization", format!("Bearer {}", api_token))
             .header("Content-Type", "application/json")
             .header("Accept", "application/json")
             .send()
