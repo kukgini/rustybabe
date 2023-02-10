@@ -1,30 +1,41 @@
+use std::error::Error;
+use std::str::FromStr;
 use tokio;
-use aries_askar::Store;
-use aries_askar::storage::options::IntoOptions;
+use aries_askar::{EntryTag, PassKey, Store, StoreKeyMethod, TagFilter};
 use aries_askar::postgres::{PostgresStore, PostgresStoreOptions};
 
 #[tokio::main]
-async fn main() {
-    let url = match std::env::var("POSTGRES_URL") {
-        Ok(p) if !p.is_empty() => p,
-        _ => "postgres://postgres:mysecretpassword@localhost:5432/acapy".to_string(),
-    };
-    let spec_uri = url.into_options().unwrap();
-    let key_method = "kdf:argon2i";
-    let pass_key="acapy";
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let key_method = Some(StoreKeyMethod::default());
+    let pass_key= PassKey::from("acapy");
     let profile = "";
-    let store = spec_uri.open_backend(
+    let store_opts = PostgresStoreOptions::new("{\"uri\":\"postgres://postgres:mysecretpassword@localhost:5432/askar_wallet\"}");
+
+    let store = store_opts.unwrap().open(
         key_method,
         pass_key,
-        profile.as_ref().map(String::as_str)
+        Some(profile)
     ).await?;
+    let mut session = store.session(Some(profile.to_string())).await.unwrap();
 
-    store.insert("name".to_string(), "John".to_string());
-    store.insert("age".to_string(), "30".to_string());
+    let category = "category1";
+    let name = "name1";
+    let value = "value1";
+    let tags = [EntryTag::Encrypted("tagkey1".to_string(),"tagval1".to_string())];
+    session.insert(
+        category,
+        name,
+        value.as_bytes(),
+        Some(&tags),
+        Some(0));
 
-    let name = store.get("name").unwrap();
-    let age = store.get("age").unwrap();
+    let filter = TagFilter::from_str("").unwrap();
+    let limit = 100;
+    let for_update = false;
+    let records = session.fetch_all(category, Some(filter), Some(limit), for_update);
 
     println!("Name: {}", name);
-    println!("Age: {}", age);
+    // println!("Age: {}", age);
+
+    Ok(())
 }
