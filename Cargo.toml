@@ -5,6 +5,7 @@ members = [
     "rustywest",
     "rustyoidc",
     "rustyserde",
+    "rustycsv",
 ]
 
 [workspace.package]
